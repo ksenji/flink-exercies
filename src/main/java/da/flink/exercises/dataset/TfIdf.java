@@ -17,13 +17,13 @@ import org.apache.flink.util.Collector;
 
 public class TfIdf {
 
-    private static final class TokenJoiner
+    private static final class TfIdfJoiner
             implements JoinFunction<Tuple3<String, String, Integer>, Tuple2<String, Integer>, Tuple3<String, String, Double>> {
         private static final long serialVersionUID = 1L;
 
         private final long count;
 
-        public TokenJoiner(long count) {
+        public TfIdfJoiner(long count) {
             this.count = count;
         }
 
@@ -63,9 +63,6 @@ public class TfIdf {
                 count++;
             }
             
-            if(value.f1.equals("might")) System.out.println("Might count:"+count);
-
-
             out.collect(Tuple2.of(value.f1, count));
         }
     }
@@ -117,7 +114,7 @@ public class TfIdf {
                     .join(documentFrequency)
                     .where(1)
                     .equalTo(0)
-                    .with(new TokenJoiner(mails.count()))
+                    .with(new TfIdfJoiner(mails.count()))
                     .writeAsText("tfidf"); //writes to tfidf directory
 
         //@formatter:on
