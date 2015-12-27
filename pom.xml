@@ -71,11 +71,6 @@
 			<artifactId>flink-clients</artifactId>
 			<version>${flink.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>io.thekraken</groupId>
-			<artifactId>grok</artifactId>
-			<version>0.1.1</version>
-		</dependency>
 	</dependencies>
 
 	<build>
