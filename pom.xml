@@ -71,6 +71,11 @@
 			<artifactId>flink-clients</artifactId>
 			<version>${flink.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>com.dataartisans</groupId>
+			<artifactId>flink-training-exercises</artifactId>
+			<version>0.2</version>
+		</dependency>
 	</dependencies>
 
 	<build>

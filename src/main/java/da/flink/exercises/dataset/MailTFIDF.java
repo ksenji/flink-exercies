@@ -15,7 +15,7 @@ import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.util.Collector;
 
-public class TfIdf {
+public class MailTFIDF {
 
     private static final class TfIdfJoiner
             implements JoinFunction<Tuple3<String, String, Integer>, Tuple2<String, Integer>, Tuple3<String, String, Double>> {

@@ -22,5 +22,8 @@ tmp
 _site
 docs/api
 build-target
+flinkMails.gz
+nycTaxiRides.gz
+tfidf
 
 /bin/
