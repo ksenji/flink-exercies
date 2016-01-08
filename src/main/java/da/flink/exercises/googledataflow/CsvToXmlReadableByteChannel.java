@@ -288,10 +288,12 @@ public class CsvToXmlReadableByteChannel implements ReadableByteChannel {
 				//@formatter:on
 
 				Iterable<String> paths = Splitter.on('/').split(url.getPath());
-				String output = (Joiner.on('/').join(Iterables.limit(paths, Iterables.size(paths) - 1)) + "/flinkMailsOutput").replaceFirst("^/(.:/)", "$1");
+				String output = (Joiner.on('/').join(Iterables.limit(paths, Iterables.size(paths) - 1)) + "/flinkMailsOutput").replaceFirst("^/(.:/)",
+				        "$1");
 
 				BufferedReader br = new BufferedReader(new InputStreamReader(Channels.newInputStream(channel)));
-				Writer writer = Channels.newWriter(Files.newByteChannel(Paths.get(output), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING), StandardCharsets.UTF_8.name());
+				Writer writer = Channels.newWriter(Files.newByteChannel(Paths.get(output), StandardOpenOption.CREATE, StandardOpenOption.WRITE,
+				        StandardOpenOption.TRUNCATE_EXISTING), StandardCharsets.UTF_8.name());
 
 				String line = null;
 				while ((line = br.readLine()) != null) {

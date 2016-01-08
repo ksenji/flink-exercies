@@ -8,7 +8,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-
 public final class Pojo implements Serializable {
 	private String messageId;
 	private Date timestamp;
@@ -25,7 +24,7 @@ public final class Pojo implements Serializable {
 		this.messageId = messageId;
 	}
 
-	@XmlElement(name="timestamp")
+	@XmlElement(name = "timestamp")
 	@XmlJavaTypeAdapter(DateAdapter.class)
 	public Date getTimestamp() {
 		return timestamp;
@@ -84,6 +83,5 @@ public final class Pojo implements Serializable {
 		public synchronized Date unmarshal(String s) throws Exception {
 			return fdf.parse(s);
 		}
-
 	}
 }
