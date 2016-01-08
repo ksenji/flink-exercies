@@ -144,7 +144,7 @@ public class CsvSource<T extends Serializable> extends FileBasedSource<T> {
         private final FileBasedSource<E> xmlSource;
         private FileBasedReader<E> reader;
         private CsvToXmlReadableByteChannel delegatedChannel;
-        private Method readNextRecord;
+        private Method readNextRecordMethod;
         private boolean successfullyDelegated;
 
         public CsvReader(CsvSource<E> source, PipelineOptions options) {
@@ -194,7 +194,7 @@ public class CsvSource<T extends Serializable> extends FileBasedSource<T> {
                     successfullyDelegated = true;
                 }
 
-                readNextRecord = delegateReaderMethod("readNextRecord", EMPTY_CLASS);
+                readNextRecordMethod = delegateReaderMethod("readNextRecord", EMPTY_CLASS);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -203,9 +203,9 @@ public class CsvSource<T extends Serializable> extends FileBasedSource<T> {
         @Override
         protected boolean readNextRecord() throws IOException {
             boolean read = false;
-            if (successfullyDelegated && (readNextRecord != null)) {
+            if (successfullyDelegated && (readNextRecordMethod != null)) {
                 try {
-                    read = (Boolean) readNextRecord.invoke(reader, EMPTY_OBJECT);
+                    read = (Boolean) readNextRecordMethod.invoke(reader, EMPTY_OBJECT);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
