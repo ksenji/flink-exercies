@@ -41,7 +41,7 @@ public class MailCount {
         p.apply(Read.from(compressed))
          .apply(new ExtractTimestampAndSender())
          .apply(Count.perElement())
-         .apply(MapElements.via(new TimestampAndSenderEmailComboKeyFormatter()))
+         .apply(MapElements.via(new TimestampAndSenderEmailCompositeKeyFormatter()))
          .apply(TextIO.Write.to("output"));
         //@formatter:on
 
@@ -75,7 +75,7 @@ public class MailCount {
         }
     }
 
-    private static class TimestampAndSenderEmailComboKeyFormatter extends SimpleFunction<KV<String, Long>, String> {
+    private static class TimestampAndSenderEmailCompositeKeyFormatter extends SimpleFunction<KV<String, Long>, String> {
         private static final long serialVersionUID = 1L;
 
         @Override
