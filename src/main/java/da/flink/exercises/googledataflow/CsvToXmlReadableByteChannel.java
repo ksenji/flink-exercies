@@ -49,10 +49,14 @@ public class CsvToXmlReadableByteChannel implements ReadableByteChannel {
     private int fieldDelimIdx = 0;
     private long currentOffset;
     private boolean epilogWithRootWritten;
+    // private byte[] buffer = new byte[SIZE];
+    private ByteBuffer buffer = ByteBuffer.allocate(SIZE);
+    private ReadableByteChannel pushBackChannel;
 
     public CsvToXmlReadableByteChannel(ReadableByteChannel delegate) {
         this.delegate = delegate;
         this.stream = new PushbackInputStream(Channels.newInputStream(delegate), SIZE);
+        this.pushBackChannel = Channels.newChannel(stream);
     }
 
     private void reset() {
@@ -66,7 +70,7 @@ public class CsvToXmlReadableByteChannel implements ReadableByteChannel {
         fieldDelimIdx = 0;
     }
 
-    private void processField(byte[] buffer, int fieldBoundaryIdx, int prevFieldBoundaryIndex) {
+    private void processField(int fieldBoundaryIdx, int prevFieldBoundaryIndex) {
         if (includeFields.get(fieldIdx)) {
             int len = foundRecordBoundary ? lineDelimiter.length : fieldDelimiter.length;
             // <![CDATA[]]
@@ -82,7 +86,7 @@ public class CsvToXmlReadableByteChannel implements ReadableByteChannel {
                 recordStash.write(spilledBytes, 0, spilledBytes.length - cut);
             }
 
-            recordStash.write(buffer, prevFieldBoundaryIndex, fieldBoundaryIdx - prevFieldBoundaryIndex - len);
+            recordStash.write(buffer.array(), prevFieldBoundaryIndex, fieldBoundaryIdx - prevFieldBoundaryIndex - len);
             writeSilently(recordStash, ("]]></" + fields[includedFieldIdx] + ">"));
             includedFieldIdx++;
         }
@@ -90,6 +94,7 @@ public class CsvToXmlReadableByteChannel implements ReadableByteChannel {
         spilloverStash.reset();
         fieldDelimIdx = 0;
         fieldIdx++;
+
     }
 
     private void processUntilNextRecordBoundary() {
@@ -100,28 +105,28 @@ public class CsvToXmlReadableByteChannel implements ReadableByteChannel {
             epilogWithRootWritten = true;
         }
 
-        byte[] buffer = new byte[SIZE];
-
         int fieldBoundaryIdx = 0;
 
         while (!foundRecordBoundary && available) {
+            buffer.clear();
             int read = -1;
             try {
-                read = stream.read(buffer, 0, buffer.length);
+                read = pushBackChannel.read(buffer);
             } catch (IOException e) {
                 e.printStackTrace();
             }
             if (read != -1) {
+                buffer.flip();
                 int prevFieldBoundaryIndex = 0;
-                for (int i = 0; i < read; i++) {
-                    byte b = buffer[i];
+                while (buffer.hasRemaining()) {
+                    byte b = buffer.get();
 
                     if (b == fieldDelimiter[fieldDelimIdx]) {
                         fieldDelimIdx++;
                         if (fieldDelimIdx == fieldDelimiter.length) {
                             // found field
-                            fieldBoundaryIdx = i + 1;
-                            processField(buffer, fieldBoundaryIdx, prevFieldBoundaryIndex);
+                            fieldBoundaryIdx = buffer.position();
+                            processField(fieldBoundaryIdx, prevFieldBoundaryIndex);
                             prevFieldBoundaryIndex = fieldBoundaryIdx;
                         }
                     } else {
@@ -132,11 +137,11 @@ public class CsvToXmlReadableByteChannel implements ReadableByteChannel {
                         recordDelimIdx++;
                         if (recordDelimIdx == lineDelimiter.length) {
                             foundRecordBoundary = true;
-                            fieldBoundaryIdx = i + 1;
+                            fieldBoundaryIdx = buffer.position();
                             currentOffset += fieldBoundaryIdx;
-                            processField(buffer, fieldBoundaryIdx, prevFieldBoundaryIndex);
+                            processField(fieldBoundaryIdx, prevFieldBoundaryIndex);
                             try {
-                                stream.unread(buffer, fieldBoundaryIdx, read - fieldBoundaryIdx);
+                                stream.unread(buffer.array(), fieldBoundaryIdx, buffer.remaining());
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
@@ -149,13 +154,13 @@ public class CsvToXmlReadableByteChannel implements ReadableByteChannel {
 
                 if (!foundRecordBoundary) {
                     currentOffset += read;
-                    spilloverStash.write(buffer, fieldBoundaryIdx, read - fieldBoundaryIdx);
+                    spilloverStash.write(buffer.array(), fieldBoundaryIdx, read - fieldBoundaryIdx);
                 }
             } else {
                 available = false;
                 if (!foundRecordBoundary && includedFieldIdx > 0) {
                     foundRecordBoundary = true;
-                    processField(buffer, fieldBoundaryIdx + lineDelimiter.length, fieldBoundaryIdx); // already
+                    processField(fieldBoundaryIdx + lineDelimiter.length, fieldBoundaryIdx); // already
                     // stashed
                 }
             }
@@ -224,11 +229,13 @@ public class CsvToXmlReadableByteChannel implements ReadableByteChannel {
 
     @Override
     public void close() throws IOException {
+        pushBackChannel.close();
         stream.close();
         delegate.close();
         overall = null;
         recordStash = null;
         spilloverStash = null;
+        buffer = null;
     }
 
     @Override

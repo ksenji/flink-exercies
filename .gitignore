@@ -1,4 +1,5 @@
 /target/
+flinkMails*
 output-*
 .project
 .settings
