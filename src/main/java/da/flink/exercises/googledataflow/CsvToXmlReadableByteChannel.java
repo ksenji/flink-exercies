@@ -101,7 +101,7 @@ public class CsvToXmlReadableByteChannel implements ReadableByteChannel {
         reset();
 
         if (!epilogWithRootWritten) {
-            writeSilently(overall, "<?xml version=\"1.0\" encoding=\"" + CHARSET + "\"><" + recordName + "s>");
+            writeSilently(overall, "<?xml version=\"1.0\" encoding=\"" + CHARSET + "\"?><" + recordName + "s>");
             epilogWithRootWritten = true;
         }
 
