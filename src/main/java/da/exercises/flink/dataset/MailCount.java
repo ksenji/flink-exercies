@@ -1,4 +1,4 @@
-package da.flink.exercises.dataset;
+package da.exercises.flink.dataset;
 
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.java.DataSet;

@@ -1,4 +1,4 @@
-package da.flink.exercises.googledataflow;
+package da.exercises.googledataflow;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -22,9 +22,9 @@ import org.apache.flink.hadoop.shaded.com.google.common.base.Splitter;
 import org.apache.flink.shaded.com.google.common.base.Joiner;
 import org.apache.flink.shaded.com.google.common.collect.Iterables;
 
-import da.flink.exercises.googledataflow.CsvSource.Util;
+import da.exercises.googledataflow.CsvSource.Util;
 
-public class CsvToXmlReadableByteChannel implements ReadableByteChannel {
+class CsvToXmlReadableByteChannel implements ReadableByteChannel {
 
     private static final int SIZE = 8 * 1024;
     private static final String CHARSET = StandardCharsets.UTF_8.name();

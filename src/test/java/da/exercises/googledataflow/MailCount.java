@@ -1,4 +1,4 @@
-package da.flink.exercises.googledataflow;
+package da.exercises.googledataflow;
 
 import java.net.URL;
 

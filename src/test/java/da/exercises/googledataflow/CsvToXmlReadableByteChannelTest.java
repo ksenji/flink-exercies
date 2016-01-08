@@ -1,4 +1,4 @@
-package exercises;
+package da.exercises.googledataflow;
 
 import static org.junit.Assert.assertEquals;
 
@@ -27,8 +27,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
-
-import da.flink.exercises.googledataflow.CsvToXmlReadableByteChannel;
 
 public class CsvToXmlReadableByteChannelTest {
 

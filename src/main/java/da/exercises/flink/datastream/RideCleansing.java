@@ -1,4 +1,4 @@
-//package da.flink.exercises.datastream;
+//package da.exercises.flink.datastream;
 //
 //import static com.dataartisans.flinktraining.exercises.datastream_java.utils.GeoUtils.isInNYC;
 //import static org.apache.flink.streaming.api.TimeCharacteristic.EventTime;

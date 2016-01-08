@@ -1,4 +1,4 @@
-package da.flink.exercises.dataset;
+package da.exercises.flink.dataset;
 
 public class Util {
 
