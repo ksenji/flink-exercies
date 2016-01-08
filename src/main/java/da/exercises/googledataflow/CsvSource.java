@@ -237,13 +237,16 @@ public class CsvSource<T extends Serializable> extends FileBasedSource<T> {
         }
 
         public static String stringOfAllOnes(int size) {
-            // return Long.toBinaryString((1L << size) - 1); //Does not work for
-            // more than 63 columns
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < size; i++) {
-                sb.append('1');
+            // Does not work for more than 63 columns
+            if (size < 64) {
+                return Long.toBinaryString((1L << size) - 1);
+            } else {
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < size; i++) {
+                    sb.append('1');
+                }
+                return sb.toString();
             }
-            return sb.toString();
         }
     }
 }
