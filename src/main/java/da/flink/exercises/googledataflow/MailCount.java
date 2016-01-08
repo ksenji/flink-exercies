@@ -28,21 +28,22 @@ public class MailCount {
 
         URL file = Thread.currentThread().getContextClassLoader().getResource("flinkMails.gz");
 
-        //@formatter:off
-		CsvSource<Pojo> source = CsvSource.<Pojo> from(file.getPath())
-				                          .withFieldDelimiter("#|#")
-				                          .withLineDelimiter("##//##")
-				                          .withPojoType(Pojo.class)
-				                          .withFields("timestamp", "sender")
-				                          .withIncludeFields("011000");
+        // @formatter:off
+        CsvSource<Pojo> source = CsvSource.<Pojo> from(file.getPath())
+                                          .withFieldDelimiter("#|#")
+                                          .withLineDelimiter("##//##")
+                                          .withPojoType(Pojo.class)
+                                          .withFields("timestamp", "sender")
+                                          .withIncludeFields("011000");
 
-		CompressedSource<Pojo> compressed = CompressedSource.from(source).withDecompression(CompressionMode.GZIP);
-		p.apply(Read.from(compressed))
-		 .apply(new ExtractTimestampAndSender())
-		 .apply(Count.perElement())
-		 .apply(MapElements.via(new TimestampAndSenderEmailComboKeyFormatter()))
-		 .apply(TextIO.Write.to("output"));
-		//@formatter:on
+        CompressedSource<Pojo> compressed = CompressedSource.from(source).withDecompression(CompressionMode.GZIP);
+        
+        p.apply(Read.from(compressed))
+         .apply(new ExtractTimestampAndSender())
+         .apply(Count.perElement())
+         .apply(MapElements.via(new TimestampAndSenderEmailComboKeyFormatter()))
+         .apply(TextIO.Write.to("output"));
+        //@formatter:on
 
         p.run();
 
