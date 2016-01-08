@@ -171,7 +171,7 @@ public class CsvSource<T extends Serializable> extends FileBasedSource<T> {
                 method = reader.getClass().getDeclaredMethod(methodName, klassArg);
                 method.setAccessible(true);
             } catch (NoSuchMethodException | SecurityException e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
             return method;
         }
@@ -196,7 +196,7 @@ public class CsvSource<T extends Serializable> extends FileBasedSource<T> {
 
                 readNextRecordMethod = delegateReaderMethod("readNextRecord", EMPTY_CLASS);
             } catch (Exception e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
         }
 
@@ -207,7 +207,7 @@ public class CsvSource<T extends Serializable> extends FileBasedSource<T> {
                 try {
                     read = (Boolean) readNextRecordMethod.invoke(reader, EMPTY_OBJECT);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    throw new RuntimeException(e);
                 }
             }
             return read;

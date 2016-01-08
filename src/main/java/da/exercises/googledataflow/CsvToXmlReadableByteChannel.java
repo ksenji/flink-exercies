@@ -70,11 +70,11 @@ class CsvToXmlReadableByteChannel implements ReadableByteChannel {
         fieldDelimIdx = 0;
     }
 
-    private void processField(int fieldBoundaryIdx, int prevFieldBoundaryIndex) {
+    private void processField(int fieldBoundaryIdx, int prevFieldBoundaryIndex) throws IOException {
         if (includeFields.get(fieldIdx)) {
             int len = foundRecordBoundary ? lineDelimiter.length : fieldDelimiter.length;
             // <![CDATA[]]
-            writeSilently(recordStash, ("<" + fields[includedFieldIdx] + "><![CDATA["));
+            write(recordStash, ("<" + fields[includedFieldIdx] + "><![CDATA["));
 
             int cut = 0;
             if (spilloverStash.size() > 0) {
@@ -87,7 +87,7 @@ class CsvToXmlReadableByteChannel implements ReadableByteChannel {
             }
 
             recordStash.write(buffer.array(), prevFieldBoundaryIndex, fieldBoundaryIdx - prevFieldBoundaryIndex - len);
-            writeSilently(recordStash, ("]]></" + fields[includedFieldIdx] + ">"));
+            write(recordStash, ("]]></" + fields[includedFieldIdx] + ">"));
             includedFieldIdx++;
         }
 
@@ -97,11 +97,11 @@ class CsvToXmlReadableByteChannel implements ReadableByteChannel {
 
     }
 
-    private void processUntilNextRecordBoundary() {
+    private void processUntilNextRecordBoundary() throws IOException {
         reset();
 
         if (!epilogWithRootWritten) {
-            writeSilently(overall, "<?xml version=\"1.0\" encoding=\"" + CHARSET + "\"?><" + recordName + "s>");
+            write(overall, "<?xml version=\"1.0\" encoding=\"" + CHARSET + "\"?><" + recordName + "s>");
             epilogWithRootWritten = true;
         }
 
@@ -109,12 +109,7 @@ class CsvToXmlReadableByteChannel implements ReadableByteChannel {
 
         while (!foundRecordBoundary && available) {
             buffer.clear();
-            int read = -1;
-            try {
-                read = pushBackChannel.read(buffer);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            int read = pushBackChannel.read(buffer);
             if (read != -1) {
                 buffer.flip();
                 int prevFieldBoundaryIndex = 0;
@@ -140,11 +135,7 @@ class CsvToXmlReadableByteChannel implements ReadableByteChannel {
                             fieldBoundaryIdx = buffer.position();
                             currentOffset += fieldBoundaryIdx;
                             processField(fieldBoundaryIdx, prevFieldBoundaryIndex);
-                            try {
-                                stream.unread(buffer.array(), fieldBoundaryIdx, buffer.remaining());
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
+                            stream.unread(buffer.array(), fieldBoundaryIdx, buffer.remaining());
                             break;
                         }
                     } else {
@@ -167,26 +158,18 @@ class CsvToXmlReadableByteChannel implements ReadableByteChannel {
         }
 
         if (includedFieldIdx == fields.length) {
-            writeSilently(overall, "<" + recordName + ">");
-            writeSilently(recordStash, overall);
-            writeSilently(overall, "</" + recordName + ">");
+            write(overall, "<" + recordName + ">");
+            write(recordStash, overall);
+            write(overall, "</" + recordName + ">");
         }
     }
 
-    private void writeSilently(ByteArrayOutputStream os, String s) {
-        try {
-            os.write(s.getBytes(CHARSET));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    private void write(ByteArrayOutputStream os, String s) throws IOException {
+        os.write(s.getBytes(CHARSET));
     }
 
-    private void writeSilently(ByteArrayOutputStream from, ByteArrayOutputStream to) {
-        try {
-            from.writeTo(to);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    private void write(ByteArrayOutputStream from, ByteArrayOutputStream to) throws IOException {
+        from.writeTo(to);
     }
 
     public CsvToXmlReadableByteChannel withFieldDelimiter(String fieldDelimiter) {
@@ -250,7 +233,7 @@ class CsvToXmlReadableByteChannel implements ReadableByteChannel {
         if (available) {
             while (overall.size() < remaining) {
                 if (!available) {
-                    writeSilently(overall, "</" + recordName + "s>");
+                    write(overall, "</" + recordName + "s>");
                     break;
                 }
                 processUntilNextRecordBoundary();
