@@ -48,17 +48,8 @@ public class CsvToXmlReadableByteChannelTest {
         }).collect(Collectors.toList());
         //@formatter:on
 
-        ByteBuffer buffer = ByteBuffer.allocate(1024);
-        buffer.clear();
-
-        try (ReadableByteChannel rbc = Channels.newChannel(url.openStream())) {
-            rbc.read(buffer);
-        }
-
-        buffer.flip();
-        
         //@formatter:off
-        try (ReadableByteChannel channel = new CsvToXmlReadableByteChannel(Channels.newChannel(new ByteArrayInputStream(buffer.array())))
+        try (ReadableByteChannel channel = new CsvToXmlReadableByteChannel(Channels.newChannel(url.openStream()))
                               .withFieldDelimiter(",")
                               .withLineDelimiter("\n")
                               .withFields("givenName", "middleInitial", "lastName", "emailAddress")
@@ -66,22 +57,12 @@ public class CsvToXmlReadableByteChannelTest {
                               .withRecordName("user")) {
         //@formatter:on
             
-//            buffer.clear();
-//            int read = -1;
-//            StringBuilder sb = new StringBuilder();
-//            while ((read = channel.read(buffer)) != -1) {
-//                buffer.flip();
-//                sb.append(new String(buffer.array(), 0, buffer.remaining(), StandardCharsets.UTF_8.name()));
-//                buffer.clear();
-//            }
-            //System.out.println(sb.toString());
             JAXBContext jaxbContext = JAXBContext.newInstance(Users.class);
             Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 
             List<User> usersFromXml = ((Users) unmarshaller.unmarshal(Channels.newInputStream(channel))).getUsers();
             
             assertEquals(usersFromCsv.size(), usersFromXml.size());
-//            assertEquals(usersFromCsv, usersFromXml);
             
             Assert.assertThat(usersFromXml, CoreMatchers.hasItems(usersFromCsv.toArray(new User[usersFromCsv.size()])));
         }
