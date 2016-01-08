@@ -152,13 +152,13 @@ public class CsvSource<T extends Serializable> extends FileBasedSource<T> {
             this.options = options;
             this.csvSource = source;
             //@formatter:off
-			this.xmlSource = XmlSource.<E>from(source.getFileOrPatternSpec())
-					               .withMinBundleSize(source.getMinBundleSize())
-					               .withRecordClass(recordClass(source))
-					               .withRecordElement("row")
-					               .withRootElement("rows")
-					               .createForSubrangeOfFile(source.getFileOrPatternSpec(), source.getStartOffset(), source.getEndOffset());
-			// @formatter:on
+            this.xmlSource = XmlSource.<E> from(source.getFileOrPatternSpec())
+                                      .withMinBundleSize(source.getMinBundleSize())
+                                      .withRecordClass(recordClass(source))
+                                      .withRecordElement("row")
+                                      .withRootElement("rows")
+                                      .createForSubrangeOfFile(source.getFileOrPatternSpec(), source.getStartOffset(), source.getEndOffset());
+            // @formatter:on
         }
 
         private Class<E> recordClass(CsvSource<E> source) {
@@ -183,13 +183,13 @@ public class CsvSource<T extends Serializable> extends FileBasedSource<T> {
                 Method method = delegateReaderMethod("startReading", ReadableByteChannel.class);
                 if (method != null) {
                     //@formatter:off
-					delegatedChannel = new CsvToXmlReadableByteChannel(channel)
-							               .withFieldDelimiter(csvSource.fieldDelimiter)
-							               .withLineDelimiter(csvSource.lineDelimiter)
-							               .withFields(csvSource.fields)
-							               .withRecordName("row")
-							               .withIncludeFields(csvSource.includeFields);
-					//@formatter:on
+                    delegatedChannel = new CsvToXmlReadableByteChannel(channel)
+                                           .withFieldDelimiter(csvSource.fieldDelimiter)
+                                           .withLineDelimiter(csvSource.lineDelimiter)
+                                           .withFields(csvSource.fields)
+                                           .withRecordName("row")
+                                           .withIncludeFields(csvSource.includeFields);
+                    //@formatter:on
                     method.invoke(reader, delegatedChannel);
                     successfullyDelegated = true;
                 }

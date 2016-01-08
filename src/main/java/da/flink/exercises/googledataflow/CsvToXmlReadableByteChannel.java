@@ -279,13 +279,13 @@ public class CsvToXmlReadableByteChannel implements ReadableByteChannel {
             ReadableByteChannel delegate = Channels.newChannel(is);
 
             //@formatter:off
-			try (CsvToXmlReadableByteChannel channel = new CsvToXmlReadableByteChannel(delegate)
-					                                       .withFieldDelimiter("#|#")
-					                                       .withLineDelimiter("##//##")
-					                                       .withFields("f0", "f3", "f5")
-					                                       .withIncludeFields("100101")
-					                                       .withRecordName("mail")) {
-				//@formatter:on
+            try (CsvToXmlReadableByteChannel channel = new CsvToXmlReadableByteChannel(delegate)
+                                                           .withFieldDelimiter("#|#")
+                                                           .withLineDelimiter("##//##")
+                                                           .withFields("f0", "f3", "f5")
+                                                           .withIncludeFields("100101")
+                                                           .withRecordName("mail")) {
+                //@formatter:on
 
                 Iterable<String> paths = Splitter.on('/').split(url.getPath());
                 String output = (Joiner.on('/').join(Iterables.limit(paths, Iterables.size(paths) - 1)) + "/flinkMailsOutput").replaceFirst("^/(.:/)",
