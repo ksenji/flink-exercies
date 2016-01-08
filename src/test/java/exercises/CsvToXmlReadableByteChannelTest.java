@@ -9,10 +9,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBContext;
@@ -26,7 +23,6 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
@@ -42,23 +38,16 @@ public class CsvToXmlReadableByteChannelTest {
         URL url =Thread.currentThread().getContextClassLoader().getResource("data.txt");
 
         CSVParser parser = CSVParser.parse(url, Charset.forName(StandardCharsets.UTF_8.name()), CSVFormat.DEFAULT);
-        
-        //@formatter:off
-        List<User> usersFromCsv = parser.getRecords()
-                                 .stream()
-                                 .map(new Function<CSVRecord, User>() {
-                                     @Override
-                                     public User apply(CSVRecord record) {
-                                         User user = new User();
-                                         user.setGivenName(record.get(0));
-                                         user.setMiddleInitial(record.get(1).charAt(0));
-                                         user.setLastName(record.get(2));
-                                         user.setEmailAddress(record.get(6));
 
-                                         return user;
-                                     }
-                                 })
-                                 .collect(Collectors.toList());
+        // @formatter:off
+        List<User> usersFromCsv = parser.getRecords().stream().map(record -> {
+            User user = new User();
+            user.setGivenName(record.get(0));
+            user.setMiddleInitial(record.get(1).charAt(0));
+            user.setLastName(record.get(2));
+            user.setEmailAddress(record.get(6));
+            return user;
+        }).collect(Collectors.toList());
         //@formatter:on
 
         ByteBuffer buffer = ByteBuffer.allocate(1024);
