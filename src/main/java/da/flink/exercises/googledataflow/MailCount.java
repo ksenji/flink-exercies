@@ -22,13 +22,13 @@ import com.google.cloud.dataflow.sdk.values.PCollection;
 
 public class MailCount {
 
-	public static void main(String[] args) throws Exception {
-		PipelineOptions options = PipelineOptionsFactory.create();
-		Pipeline p = Pipeline.create(options);
+    public static void main(String[] args) throws Exception {
+        PipelineOptions options = PipelineOptionsFactory.create();
+        Pipeline p = Pipeline.create(options);
 
-		URL file = Thread.currentThread().getContextClassLoader().getResource("flinkMails.gz");
+        URL file = Thread.currentThread().getContextClassLoader().getResource("flinkMails.gz");
 
-		//@formatter:off
+        //@formatter:off
 		CsvSource<Pojo> source = CsvSource.<Pojo> from(file.getPath())
 				                          .withFieldDelimiter("#|#")
 				                          .withLineDelimiter("##//##")
@@ -44,42 +44,42 @@ public class MailCount {
 		 .apply(TextIO.Write.to("output"));
 		//@formatter:on
 
-		p.run();
+        p.run();
 
-	}
+    }
 
-	private static class ExtractTimestampAndSender extends PTransform<PCollection<Pojo>, PCollection<String>> {
+    private static class ExtractTimestampAndSender extends PTransform<PCollection<Pojo>, PCollection<String>> {
 
-		private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 1L;
 
-		@Override
-		public PCollection<String> apply(PCollection<Pojo> input) {
-			return input.apply(ParDo.of(new DoFn<Pojo, String>() {
-				private static final long serialVersionUID = 1L;
-				private final FastDateFormat fdf = FastDateFormat.getInstance("yyyy-MM");
+        @Override
+        public PCollection<String> apply(PCollection<Pojo> input) {
+            return input.apply(ParDo.of(new DoFn<Pojo, String>() {
+                private static final long serialVersionUID = 1L;
+                private final FastDateFormat fdf = FastDateFormat.getInstance("yyyy-MM");
 
-				public String emailOfSender(String sender) {
-					int indexOfLt = sender.indexOf('<') + 1;
-					int indexOfgt = sender.indexOf('>', indexOfLt);
-					return sender.substring(indexOfLt, indexOfgt);
-				}
+                public String emailOfSender(String sender) {
+                    int indexOfLt = sender.indexOf('<') + 1;
+                    int indexOfgt = sender.indexOf('>', indexOfLt);
+                    return sender.substring(indexOfLt, indexOfgt);
+                }
 
-				@Override
-				public void processElement(ProcessContext c) throws Exception {
-					Pojo pojo = c.element();
+                @Override
+                public void processElement(ProcessContext c) throws Exception {
+                    Pojo pojo = c.element();
 
-					c.output(fdf.format(pojo.getTimestamp()) + " " + emailOfSender(pojo.getSender()));
-				}
-			}));
-		}
-	}
+                    c.output(fdf.format(pojo.getTimestamp()) + " " + emailOfSender(pojo.getSender()));
+                }
+            }));
+        }
+    }
 
-	private static class TimestampAndSenderEmailComboKeyFormatter extends SimpleFunction<KV<String, Long>, String> {
-		private static final long serialVersionUID = 1L;
+    private static class TimestampAndSenderEmailComboKeyFormatter extends SimpleFunction<KV<String, Long>, String> {
+        private static final long serialVersionUID = 1L;
 
-		@Override
-		public String apply(KV<String, Long> input) {
-			return input.getKey() + " " + input.getValue();
-		}
-	}
+        @Override
+        public String apply(KV<String, Long> input) {
+            return input.getKey() + " " + input.getValue();
+        }
+    }
 }
